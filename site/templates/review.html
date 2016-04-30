@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}<title>Test Assignment Dashboard</title>{% endblock %}
+{% block title %}<title>Test Assignment Code Review</title>{% endblock %}
 {% block content %}
   <h1>Test Assignment {{fork}}</h1>
   <div>
@@ -8,10 +8,9 @@
   </aside>
   </div>
   {% set allpassed = (results['stats']['passes'] == results['stats']['total']) %}
-  {% set current = submission and (submission == latest) %}
   <div>
     <h2>Assignment Results</h2>
-    {% if not results %}
+    {% if not submission or not results %}
     <p>No results exist for your assignment. If you did submit your code, please contact the instructors.</p>
     {% else %}
     <div class="progress">
@@ -29,5 +28,26 @@
       </div>
     </div>
     {% endif %}
+  </div>
+  <div>
+    <h2>Assignment Code Review</h2>
+    {% if not submission %}
+    <p>You cannot submit your code for review because you did not complete the assignment.</p>
+    {% else %}
+    <p>For this test assignment, you can manually submit your code for review using the button below.
+       In a real assignment, this would be done in a batch process by the instructors.</p>
+    <p><a href="{{ url_for('doreview') }}" class="btn btn-success">Submit for Review</a></p>
+    <p>You only need to submit your code for review once. Once your code review is created, you can
+       view it on GerritHub. Use your same GitHub account to sign in.</p>
+    <p><a href="https://review.gerrithub.io/#/q/{{submission}}" target="_blank" class="btn btn-success">View your Review</a></p>
+    {% endif %}
+    <h2>Peer Code Review</h2>
+    <p>For this test assignment, you are assigned three example reviews. Feel free to explore the
+       Gerrit interface and add comments to the code review. To bring up the student's code,
+       click on the "sample/hw1.py" link. Then use Gerrit's interface to leave comments. To comment
+       on a particular block of code, highlight the section and press "c".</p>
+    <p><a href="https://review.gerrithub.io/#/q/f94a5806ab8984d9fc8a362fe85cd777f0362fd9" target="_blank" class="btn btn-success">Code Review #1</a></p>
+    <p><a href="https://review.gerrithub.io/#/q/ec4b48f779b87834b6a7e741bcea50f92f97e904" target="_blank" class="btn btn-success">Code Review #2</a></p>
+    <p><a href="https://review.gerrithub.io/#/q/testing7" target="_blank" class="btn btn-success">Code Review #3</a></p>
   </div>
 {% endblock %}

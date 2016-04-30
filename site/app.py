@@ -1,4 +1,4 @@
-import sys, logging, time, base64, hashlib, hmac, json
+import sys, logging, subprocess, time, base64, hashlib, hmac, json
 from logging.handlers import RotatingFileHandler
 from requests_oauthlib import OAuth2Session
 from flask import Flask, request, redirect, session, url_for, render_template, json
@@ -11,17 +11,17 @@ import secrets
 
 app = Flask(__name__, static_url_path='')
 app.secret_key = secrets.COOKIE_KEY
-handler = RotatingFileHandler('/home/ct/peergrader.log', maxBytes=100000, backupCount=5)
+handler = RotatingFileHandler(secrets.LOG_PATH, maxBytes=100000, backupCount=5)
 handler.setLevel(logging.WARNING)
 app.logger.addHandler(handler)
 
-BASE_URL = 'https://peergrader.ctgraham.com'
+BASE_URL = secrets.BASE_URL
 AUTHORIZE_URL = 'https://github.com/login/oauth/authorize'
 TOKEN_URL = 'https://github.com/login/oauth/access_token'
 SCOPES = ['read:org', 'user:email', 'repo_deployment', 'repo:status', 'write:repo_hook', 'public_repo']
 DISQUS_AUTHORIZE = 'https://disqus.com/api/oauth/2.0/authorize/'
 DISQUS_TOKEN = 'https://disqus.com/api/oauth/2.0/access_token/'
-HOMEWORK_REPO = 'chrisgtech/peergrader'
+HOMEWORK_REPO = secrets.BASE_URL
 
 @app.route('/')
 @app.route('/index')
@@ -172,6 +172,7 @@ def authorize():
         exc_type, exc_value, exc_traceback = sys.exc_info()
         return 'authorize: %s\n%s %s\n%s' % (exc_type, exc_value, requested, exc_traceback)
     
+# Single Sign-on for Disqus, not currently working
 #@app.route('/disqus')
 #def disqus():
 #    try:
@@ -293,15 +294,15 @@ def checktravis():
         exc_type, exc_value, exc_traceback = sys.exc_info()
         if 'Forbidden' in str(exc_value):
             session['username'] = None
-            return redirect(url_for('.root'))
+            return redirect(url_for('.asktravis'))
         return 'checktravis: %s\n%s\n%s' % (exc_type, exc_value, exc_traceback)
     
 @app.route('/asktravis')
 def asktravis():
     return render_template('asktravis.html', username=session['username'], fork=session['fork'])
     
-@app.route('/testing')
-def testing():
+@app.route('/doreview')
+def doreview():
     github, travis = loadapis()
     fork = session['fork']
     build, results = findbuild(travis, fork)
@@ -309,7 +310,9 @@ def testing():
     submit, latest = findsubmission(github, fork)
     build, results = findbuild(travis, fork, submit)
     oldbuild = build.commit.sha
-    return '%s - %s - %s - %s' % (latest, submit, newbuild, oldbuild)
+    p = subprocess.Popen(['sh', secrets.REVIEW_PATH, oldbuild, HOMEWORK_REPO, fork, secrets.GERRIT_KEY], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = p.communicate()
+    return redirect(url_for('.review'))
 
 if __name__ == '__main__':
     app.run()
