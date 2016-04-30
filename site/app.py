@@ -21,7 +21,7 @@ TOKEN_URL = 'https://github.com/login/oauth/access_token'
 SCOPES = ['read:org', 'user:email', 'repo_deployment', 'repo:status', 'write:repo_hook', 'public_repo']
 DISQUS_AUTHORIZE = 'https://disqus.com/api/oauth/2.0/authorize/'
 DISQUS_TOKEN = 'https://disqus.com/api/oauth/2.0/access_token/'
-HOMEWORK_REPO = secrets.BASE_URL
+HOMEWORK_REPO = secrets.HOMEWORK_REPO
 
 @app.route('/')
 @app.route('/index')
