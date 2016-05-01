@@ -26,3 +26,5 @@ PeerGrader was developed and tested on Ubuntu 14.04. In theory any flavor of Lin
 
 ## Creating An Assignment
 Currently PeerGrader only supports Python programming assignments and tests created with the nose unit testing framework. To create a new assignment, a new public GitHub repo must be created. The root of the repo should include .travis.yml, requirements.txt, and setup.py files similar to the example assignment ones. Any pip packages can be included in requirements.txt and will be installed when Travis CI runs the tests. The structure of the assignment itself is completely up to you, the only requirement is that nose tests are included that are automatically run when "nosetests" is executed. The secrets.py file used by PeerGrader must be updated to include the name of the assignment repo. If the assignment instructions need to be changed, the dashboard.html template can be edited. Those are the only assignment-specific configuration steps, all parts of PeerGrader should work with the new assignment.
+
+
